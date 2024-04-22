@@ -74,6 +74,18 @@ df_10_vin.to_csv("/Workspace/Users/ugo.merlier@stellantis.com/Project/chrg00/PRJ
 
 # COMMAND ----------
 
+df_10_workspace = pd.read_csv('/Workspace/Users/ugo.merlier@stellantis.com/Project/chrg00/PRJ_2024/Data/Processed_data/avenir/df_10_vin.csv')
+liste_vin_10 = df_10_workspace['VIN'].tolist()
+
+# COMMAND ----------
+
+df_79 = tcv.read(
+        spark, 79, "2020-07-01", "2022-05-01", False, liste_vin_10, 'carbide'
+    )
+df_79.write.mode("overwrite").parquet("s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/data/Raw/avenir/df_79")
+
+# COMMAND ----------
+
 df_74 = tcv.read(
         spark, 74, "2020-07-01", "2022-05-01", False, liste_vin_10, 'carbide'
     )
