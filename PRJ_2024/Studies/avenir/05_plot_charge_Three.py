@@ -150,11 +150,3 @@ plot_v1(df_plot.toPandas(),"VR3UHZKXZLT067992","2022-04-01", "2022-04-20")
 # COMMAND ----------
 
 
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
