@@ -30,22 +30,13 @@ from datetime import datetime
 
 # COMMAND ----------
 
-s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/public/local_python2/plot_save/VF3M4DGZUMS015260_plot.png
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC list "s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/data/Raw/"
-
-# COMMAND ----------
-
 df_74 = (spark.read
   .format("parquet")
   .option("header",True)
   .options(delimiter=';')
-  .load("s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/data/Raw/Extraction_30_VIN/Bloc_74")
+  .load("s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/Studies/Dase/parquet/74/Bloc_74")
 )
-print("s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/data/Raw/Extraction_30_VIN/Bloc_74")
+print("s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/Studies/Dase/parquet/74/Bloc_74")
 
 # COMMAND ----------
 
@@ -53,9 +44,9 @@ df_79 = (spark.read
   .format("parquet")
   .option("header",True)
   .options(delimiter=';')
-  .load("s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/data/Raw/Extraction_30_VIN/Bloc_79")
+  .load("s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/Studies/Dase/parquet/79/Bloc_79")
 )
-print("s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/data/Raw/Extraction_30_VIN/Bloc_79")
+print("s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/Studies/Dase/parquet/79/Bloc_79")
 
 # COMMAND ----------
 

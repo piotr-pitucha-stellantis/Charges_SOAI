@@ -9,11 +9,7 @@
 
 # COMMAND ----------
 
-dbutils.widgets.text('workspace', '/Workspace/Users/ugo.merlier@stellantis.com/Project/chrg00/PRJ_2024/Data/Processed_data/avenir')
-
-# COMMAND ----------
-
-dbutils.widgets.text('S3', 's3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/data/')
+dbutils.widgets.text('Data_path_S3', 's3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/')
 
 # COMMAND ----------
 
@@ -46,7 +42,7 @@ import time
 
 # COMMAND ----------
 
-path_chargeTwo = dbutils.widgets.get('S3')+'Avenir/ChargeTwo_test/'
+path_chargeTwo = dbutils.widgets.get('Data_path_S3') + 'Studies/Avenir/parquet/ChargeTwo_test/'
 path_chargeTwo
 
 # COMMAND ----------
@@ -60,7 +56,7 @@ df_charge = (spark.read
 
 # COMMAND ----------
 
-df_vehicle_status=spark.read.parquet(dbutils.widgets.get('S3')+ "/Raw/avenir/df_74")
+df_vehicle_status=spark.read.parquet(dbutils.widgets.get('Data_path_S3') + "Studies/Avenir/parquet/74/df_74")
 
 # COMMAND ----------
 
@@ -190,7 +186,7 @@ df_to_save=df_charge_join_4.select('HEAD_VIN','START','STOP','SOC_START','SOC_ST
 
 # COMMAND ----------
 
-path_result2 = dbutils.widgets.get('S3')+'Avenir/ChargeThree01_test/'
+path_result2 = dbutils.widgets.get('Data_path_S3')+ 'Studies/Avenir/parquet/ChargeThree01_test/'
 path_result2
 
 # COMMAND ----------
@@ -260,7 +256,7 @@ df_to_save=df_charge_join_4.select('HEAD_VIN','START','STOP','msg_id_start','msg
 
 # COMMAND ----------
 
-path_result3 = dbutils.widgets.get('S3')+'Avenir/ChargeThree02_test/'
+path_result3 = dbutils.widgets.get('Data_path_S3')+ 'Studies/Avenir/parquet/ChargeThree02_test/'
 path_result3
 
 # COMMAND ----------

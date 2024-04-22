@@ -10,7 +10,7 @@
 # COMMAND ----------
 
 # widget data path 
-dbutils.widgets.text('Charge_Data_Path_S3', 's3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/public/')
+dbutils.widgets.text('Charge_Data_Path_S3', 's3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/Dase/Request/')
 
 # COMMAND ----------
 
@@ -84,11 +84,6 @@ date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
 
 # Formater la date en une chaîne de caractères avec le format souhaité
 nouvelle_start_date = date_obj.strftime("%Y/%m")
-
-# COMMAND ----------
-
-path_save_plot =dbutils.widgets.get('Charge_Data_Path_S3') +folder_name+"/plot_save"
-print(path_save_plot)
 
 # COMMAND ----------
 

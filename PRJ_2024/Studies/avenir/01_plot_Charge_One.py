@@ -23,11 +23,11 @@ import matplotlib.pyplot as plt
 
 # COMMAND ----------
 
-dbutils.widgets.text('S3', 's3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/data/')
+dbutils.widgets.text('Data_path_S3', 's3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/')
 
 # COMMAND ----------
 
-path_result = dbutils.widgets.get('S3')+'Avenir/ChargeOne_test/'
+path_result = dbutils.widgets.get('Data_path_S3') + 'Studies/Avenir/parquet/ChargeOne_test/'
 path_result
 
 # COMMAND ----------

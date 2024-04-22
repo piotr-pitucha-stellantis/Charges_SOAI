@@ -9,11 +9,7 @@
 
 # COMMAND ----------
 
-dbutils.widgets.text('workspace', '/Workspace/Users/ugo.merlier@stellantis.com/Project/chrg00/PRJ_2024/Data/Processed_data/avenir')
-
-# COMMAND ----------
-
-dbutils.widgets.text('S3', 's3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/data/')
+dbutils.widgets.text('Data_path_S3', 's3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/')
 
 # COMMAND ----------
 
@@ -51,17 +47,19 @@ import time
 
 # COMMAND ----------
 
-df_vin = pd.read_csv( dbutils.widgets.get('workspace') + "/df_vin_van.csv",sep=';')
+path =dbutils.widgets.get('Data_path_S3') + "Studies/Avenir/csv/df_10_vin.csv"
+df_vin_spk = (spark.read
+    .format("csv")
+    .option("header",True)
+    .option("index", False)
+    .options(delimiter=',')
+    .load(path)
+    )
+df_vin = df_vin_spk.toPandas()
 
 # COMMAND ----------
 
-df_vin
-
-# COMMAND ----------
-
-np.random.seed(42)
-
-liste_vin_10 = df_vin['VIN'].sample(n=10).tolist()
+liste_vin_10 = df_vin['VIN'].tolist()
 
 # COMMAND ----------
 
@@ -69,27 +67,17 @@ liste_vin_10
 
 # COMMAND ----------
 
-df_10_vin = df_vin['VIN'].sample(n=10)
-df_10_vin.to_csv("/Workspace/Users/ugo.merlier@stellantis.com/Project/chrg00/PRJ_2024/Data/Processed_data/avenir/df_10_vin.csv")
+# df_79 = tcv.read(
+#         spark, 79, "2020-07-01", "2022-05-01", False, liste_vin_10, 'carbide'
+#     )
+# df_79.write.mode("overwrite").parquet(dbutils.widgets.get('Data_path_S3') + "Studies/Avenir/parquet/79/df_79")
 
 # COMMAND ----------
 
-df_10_workspace = pd.read_csv('/Workspace/Users/ugo.merlier@stellantis.com/Project/chrg00/PRJ_2024/Data/Processed_data/avenir/df_10_vin.csv')
-liste_vin_10 = df_10_workspace['VIN'].tolist()
-
-# COMMAND ----------
-
-df_79 = tcv.read(
-        spark, 79, "2020-07-01", "2022-05-01", False, liste_vin_10, 'carbide'
-    )
-df_79.write.mode("overwrite").parquet("s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/data/Raw/avenir/df_79")
-
-# COMMAND ----------
-
-df_74 = tcv.read(
-        spark, 74, "2020-07-01", "2022-05-01", False, liste_vin_10, 'carbide'
-    )
-df_74.write.mode("overwrite").parquet("s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/data/Raw/avenir/df_74")
+# df_74 = tcv.read(
+#         spark, 74, "2020-07-01", "2022-05-01", False, liste_vin_10, 'carbide'
+#     )
+# df_74.write.mode("overwrite").parquet(dbutils.widgets.get('Data_path_S3') + "Studies/Avenir/parquet/74/df_74")
 
 # COMMAND ----------
 
@@ -113,7 +101,7 @@ trip_10.select("VIN").distinct().count()
 
 # COMMAND ----------
 
-path_result = dbutils.widgets.get('S3')+'Avenir/ChargeOne_test/'
+path_result = dbutils.widgets.get('Data_path_S3') + 'Studies/Avenir/parquet/ChargeOne_test/'
 path_result
 
 # COMMAND ----------
@@ -123,7 +111,7 @@ start_time = time.time()
 
 
 # Message 74 vehicles status
-vehicle_statuts=spark.read.parquet(dbutils.widgets.get('S3')+ "/Raw/avenir/df_74")
+vehicle_statuts=spark.read.parquet(dbutils.widgets.get('Data_path_S3') + "Studies/Avenir/parquet/74/df_74")
 
 table_shape=vehicle_statuts.select('HEAD_VIN').distinct().count()
 print("number of vin : " +str(table_shape))

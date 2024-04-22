@@ -9,11 +9,7 @@
 
 # COMMAND ----------
 
-dbutils.widgets.text('workspace', '/Workspace/Users/ugo.merlier@stellantis.com/Project/chrg00/PRJ_2024/Data/Processed_data/avenir')
-
-# COMMAND ----------
-
-dbutils.widgets.text('S3', 's3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/data/')
+dbutils.widgets.text('Data_path_S3', 's3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/')
 
 # COMMAND ----------
 
@@ -46,18 +42,26 @@ import time
 
 # COMMAND ----------
 
-df_10_workspace = pd.read_csv('/Workspace/Users/ugo.merlier@stellantis.com/Project/chrg00/PRJ_2024/Data/Processed_data/avenir/df_10_vin.csv')
-liste_vin_10 = df_10_workspace['VIN'].tolist()
+path =dbutils.widgets.get('Data_path_S3') + "Studies/Avenir/csv/df_10_vin.csv"
+df_vin_spk = (spark.read
+    .format("csv")
+    .option("header",True)
+    .option("index", False)
+    .options(delimiter=',')
+    .load(path)
+    )
+df_vin = df_vin_spk.toPandas()
+liste_vin_10 = df_vin['VIN'].tolist()
 
 # COMMAND ----------
 
-df_79=spark.read.parquet(dbutils.widgets.get('S3')+ "/Raw/avenir/df_79")
+df_79=spark.read.parquet(dbutils.widgets.get('Data_path_S3')+ "Studies/Avenir/parquet/79/df_79")
 df_79 = df_79.withColumnRenamed('HEAD_VIN','VIN')
 df_79=df_79.dropDuplicates(['VIN','HEAD_MESS_ID']).orderBy('VIN','HEAD_MESS_ID')
 
 # COMMAND ----------
 
-path_chargeone = dbutils.widgets.get('S3')+'Avenir/ChargeOne_test/'
+path_chargeone = dbutils.widgets.get('Data_path_S3') + 'Studies/Avenir/parquet/ChargeOne_test/'
 path_chargeone
 
 # COMMAND ----------
@@ -162,7 +166,7 @@ charge_join_3=charge_join_3.withColumn('STOP',
 
 # COMMAND ----------
 
-path_result = dbutils.widgets.get('S3')+'Avenir/ChargeTwoInter_test/'
+path_result = dbutils.widgets.get('Data_path_S3') + 'Studies/Avenir/parquet/ChargeTowInter_test/'
 path_result
 
 # COMMAND ----------
@@ -253,7 +257,7 @@ charge_3=charge.withColumn('STOP',
 
 # COMMAND ----------
 
-path_result2 = dbutils.widgets.get('S3')+'Avenir/ChargeTwo_test/'
+path_result2 = dbutils.widgets.get('Data_path_S3') + 'Studies/Avenir/parquet/ChargeTwo_test/'
 path_result2
 
 # COMMAND ----------

@@ -23,11 +23,11 @@ import matplotlib.pyplot as plt
 
 # COMMAND ----------
 
-dbutils.widgets.text('S3', 's3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/data/')
+dbutils.widgets.text('Data_path_S3', 's3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/')
 
 # COMMAND ----------
 
-path_result = dbutils.widgets.get('S3')+'Avenir/ChargeThree01_test/'
+path_result = dbutils.widgets.get('Data_path_S3') + 'Studies/Avenir/parquet/ChargeTwo_test/'
 path_result
 
 # COMMAND ----------
@@ -54,8 +54,8 @@ def plot_v1(df,VIN, start_time=None, end_time=None):
 # COMMAND ----------
 
 def transform_to_plot(df_plug):
-    df_spark_start = df_plug.select("START","HEAD_VIN",'SOC_START_ID').withColumn("EVNT", F.lit("plug"))
-    df_spark_stop = df_plug.select("STOP","HEAD_VIN",'SOC_STOP_ID').withColumn("EVNT", F.lit("unplug"))
+    df_spark_start = df_plug.select("START","HEAD_VIN",'CHARGE_SESSION').withColumn("EVNT", F.lit("plug"))
+    df_spark_stop = df_plug.select("STOP","HEAD_VIN",'CHARGE_SESSION').withColumn("EVNT", F.lit("unplug"))
     df_union =df_spark_start.union(df_spark_stop)
     df_union = df_union.withColumnRenamed("START", "time")
     df_union = df_union.orderBy("HEAD_VIN")
@@ -68,7 +68,7 @@ def transform_to_plot(df_plug):
 # COMMAND ----------
 
 
-df_chargethree = (spark.read
+df_chargetwo = (spark.read
   .format("parquet")
   .option("header",True)
   .load(path_result)
@@ -76,84 +76,16 @@ df_chargethree = (spark.read
 
 # COMMAND ----------
 
-df_chargethree.toPandas().head()
+df_chargetwo.toPandas().head()
 
 # COMMAND ----------
 
 
-df_plot = transform_to_plot(df_chargethree)
+df_plot = transform_to_plot(df_chargetwo)
 
 # COMMAND ----------
 
 plot_v1(df_plot.toPandas(),"VR3UHZKXZLT067992","2022-04-01", "2022-04-20")
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
 
 # COMMAND ----------
 

@@ -9,23 +9,8 @@
 
 # COMMAND ----------
 
-# Create a text widget for the userid definition
-dbutils.widgets.text('UserID', '')
-# dbutils.widgets.remove('path') # to remove the widget
-
-# Get the input value
-userid = dbutils.widgets.get('UserID')
-
-
-
-# COMMAND ----------
-
-dbutils.widgets.text('Data_path', '')
-
-# COMMAND ----------
-
 # widget data path 
-dbutils.widgets.text('Data_path_S3', '')
+dbutils.widgets.text('Data_path_S3', 's3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/Studies/Dase/')
 
 # COMMAND ----------
 
@@ -83,13 +68,13 @@ class PlotAnalysis():
                     .format("parquet")
                     .option("header",True)
                     .options(delimiter=';')
-                    .load(dbutils.widgets.get('Data_path_S3') +"data/Processed/Plot/df_ready_plot/datalabv1_id")
+                    .load(dbutils.widgets.get('Data_path_S3') +"parquet/datalabv1_id")
                     )
         self.dfv2_spk = (spark.read
                     .format("parquet")
                     .option("header",True)
                     .options(delimiter=';')
-                    .load(dbutils.widgets.get('Data_path_S3') +"data/Processed/Plot/df_ready_plot/datalabv2_id")
+                    .load(dbutils.widgets.get('Data_path_S3') +"parquet/datalabv2_id")
                     )
         
         temp = self.dfv1_spk.toPandas()

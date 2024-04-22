@@ -4,21 +4,16 @@
 
 # COMMAND ----------
 
-dbutils.widgets.text('BTA_DATA_map', '/Workspace/Users/ugo.merlier@stellantis.com/Project/chrg00/PRJ_2024/Data/BTA_Datamap_V3.01.csv')
+dbutils.widgets.text('BTA_DATA_map', 's3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/Studies/Dase/csv/BTA_Datamap_V3.01.csv')
 
 # COMMAND ----------
 
 # widget data path 
-dbutils.widgets.text('Data_path_S3', 's3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/public/')
+dbutils.widgets.text('Data_path_S3', 's3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/Dase/Request/')
 
 # COMMAND ----------
 
 print('Data_path_S3 path :', dbutils.widgets.get('Data_path_S3'))
-
-# COMMAND ----------
-
-# widget data path 
-dbutils.widgets.text('Data_path', '/Workspace/Users/ugo.merlier@stellantis.com/Project/chrg00/PRJ_2024/Data/BTA_Datamap_V3.01.csv')
 
 # COMMAND ----------
 
@@ -85,16 +80,6 @@ folder_name = data["folder_name"]
 
 # COMMAND ----------
 
-folder_name = folder_name + "/"
-folder_extraction = "Extraction_"+folder_name 
-
-# COMMAND ----------
-
-new_val = dbutils.widgets.get("Data_path_S3") + folder_name
-dbutils.widgets.text("Data_path_S3", new_val)
-
-# COMMAND ----------
-
 # MAGIC %md
 # MAGIC ## Save local json
 
@@ -102,15 +87,16 @@ dbutils.widgets.text("Data_path_S3", new_val)
 
 df = pd.read_json('/Workspace/Users/ugo.merlier@stellantis.com/Project/chrg00/PRJ_2024/config.json')
 df["date"] =  datetime.now()
-df["path_plug"]= "s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/public/"+folder_name+"data/Processed/levdata/plugs"
-df["path_raw"]= "s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/public/"+folder_name +"data/Raw"+ "/Extraction_" +folder_name
+df["path_plug"]= dbutils.widgets.get('Data_path_S3')+folder_name+"/levdata/plugs"
+df["path_raw"]= dbutils.widgets.get('Data_path_S3')+folder_name +"/Raw"
 spark_df = spark.createDataFrame(df)
 # Sauvegarder le DataFrame au format CSV
 
 
 # COMMAND ----------
 
-spark_df.write.format("delta").save("s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/public/"+folder_name + "delta_config/local_config") 
+spark_df.write.mode('overwrite').parquet(dbutils.widgets.get('Data_path_S3')+folder_name + "/local_config") 
+
 
 
 # COMMAND ----------
@@ -120,25 +106,32 @@ spark_df.write.format("delta").save("s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982
 
 # COMMAND ----------
 
-def extract_79_74_and_save (list_vin, start_date, end_date,folder_extraction):
+def extract_79_74_and_save (list_vin, start_date, end_date):
     df_79 = tcv.read(
         spark, 79, start_date, end_date, False, list_vin, 'carbide'
     )
-    df_79.write.mode("overwrite").parquet(dbutils.widgets.get('Data_path_S3') +"data/Raw/"+folder_extraction+"/79")
+    df_79.write.mode("overwrite").parquet(dbutils.widgets.get('Data_path_S3')+folder_name  +"/Raw/79")
     
     df_74 = tcv.read(
         spark, 74, start_date, end_date, False, list_vin, 'carbide'
     )
-    df_74.write.mode("overwrite").parquet(dbutils.widgets.get('Data_path_S3') +"data/Raw/"+folder_extraction+"/74")
+    df_74.write.mode("overwrite").parquet(dbutils.widgets.get('Data_path_S3')+folder_name  +"/Raw/74")
 
 # COMMAND ----------
 
 def translate_AFNOR_INFO_CODE(df,initial_naming):
     # Modif Ugo :
     ### prise en charge du datamap
-    path =dbutils.widgets.get('Data_path') 
+    path =dbutils.widgets.get('BTA_DATA_map') 
+    datamap_spk = (spark.read
+        .format("csv")
+        .option("header",True)
+        .options(delimiter=';')
+        .load(path)
+        )
+    datamap = datamap_spk.toPandas()
     #datamap = pd.read_csv(path, sep=";")
-    datamap = pd.read_csv(path, sep=";", encoding="latin-1")
+    #datamap = pd.read_csv(path, sep=";", encoding="latin-1")
 
     #Creation d'un dictionnaire nouveau code -> ancien code
     #Si nouveau code alors on conserve le nouveau
@@ -748,7 +741,7 @@ print(nbdays)
 
 # COMMAND ----------
 
-extract_79_74_and_save (vin, start_date, end_date,folder_extraction)
+extract_79_74_and_save (vin, start_date, end_date)
 
 # COMMAND ----------
 
@@ -771,7 +764,7 @@ for d in range(nbdays-1):
     
     if start==1:
         batall_part1=extract_battery_plug_data(rolling_start,rolling_start,1,list_vin)
-        data_temp_bat1 = dbutils.widgets.get('Data_path_S3') +"data/Processed/levdata/temp/battery_part1"
+        data_temp_bat1 = dbutils.widgets.get('Data_path_S3') +folder_name+"/levdata/temp/battery_part1"
         batall_part1.write.mode('Overwrite').parquet(data_temp_bat1)
         
     batall_part1=spark.read.parquet(data_temp_bat1)
@@ -779,7 +772,7 @@ for d in range(nbdays-1):
     
         
     batall_part2=extract_battery_plug_data(rolling_end,rolling_end,2,list_vin)
-    data_temp_bat2 = dbutils.widgets.get('Data_path_S3') +"data/Processed/levdata/temp/battery_part2"
+    data_temp_bat2 = dbutils.widgets.get('Data_path_S3') +folder_name+"/levdata/temp/battery_part2"
     batall_part2.write.mode('Overwrite').parquet(data_temp_bat2)
     batall_part2=batall_part2.withColumn('part',lit(2))
     
@@ -813,7 +806,7 @@ for d in range(nbdays-1):
 
     # filtering of plugs calculated in the previous loop and ending in the current loop (partial plugs)
     if start!=1:
-        plugs_prev_path = dbutils.widgets.get('Data_path_S3') +"data/Processed/levdata/temp/plugs_prev"
+        plugs_prev_path = dbutils.widgets.get('Data_path_S3') +folder_name+"/levdata/temp/plugs_prev"
         plugs_prev=spark.read.parquet(plugs_prev_path)
         plugs_prev=plugs_prev.select(plugs_prev.HEAVIN.alias('HEAVIN2')\
                                      ,plugs_prev.HMSGstart.alias('HMSGstart2'),plugs_prev.HMSGstop.alias('HMSGstop2'))
@@ -822,7 +815,7 @@ for d in range(nbdays-1):
                           |((plugs.HMSGstop==plugs_prev.HMSGstop2))), how='left_outer')
         plugs=plugs.filter(plugs.HEAVIN2.isNull()).drop('HEAVIN2').drop('HMSGstart2').drop('HMSGstop2')
     
-    plugs_current_path = dbutils.widgets.get('Data_path_S3') +"data/Processed/levdata/temp/plugs_current"
+    plugs_current_path = dbutils.widgets.get('Data_path_S3') +folder_name+"/levdata/temp/plugs_current"
     plugs.write.parquet(plugs_current_path)
     
     plugs=spark.read.parquet(plugs_current_path)
@@ -833,13 +826,13 @@ for d in range(nbdays-1):
     plugs=plugs.repartition('HEAVIN')
     
     
-    plugs.write.parquet(dbutils.widgets.get('Data_path_S3') +"data/Processed/levdata/plugs"+wpath,mode='append')
+    plugs.write.parquet(dbutils.widgets.get('Data_path_S3') +folder_name+"/levdata/plugs"+wpath,mode='append')
     dbutils.fs.rm(data_temp_bat1, recurse=True)
     dbutils.fs.mv(data_temp_bat2,data_temp_bat1,recurse=True)
     if start!=1:
-        dbutils.fs.rm( dbutils.widgets.get('Data_path_S3') +"data/Processed/levdata/temp/plugs_prev", recurse=True)
+        dbutils.fs.rm( dbutils.widgets.get('Data_path_S3') +folder_name+"/levdata/temp/plugs_prev", recurse=True)
     
-    dbutils.fs.mv(plugs_current_path, dbutils.widgets.get('Data_path_S3') +"data/Processed/levdata/temp/plugs_prev",recurse=True)
+    dbutils.fs.mv(plugs_current_path, dbutils.widgets.get('Data_path_S3') +folder_name+"/levdata/temp/plugs_prev",recurse=True)
   
     spark.conf.set('spark.sql.shuffle.partitions',200)
     start=0
