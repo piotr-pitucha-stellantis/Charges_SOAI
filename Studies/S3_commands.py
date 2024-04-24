@@ -16,7 +16,7 @@ dbutils.fs.cp("file:/Workspace/Users/valerie.brisson@stellantis.com/Test_DB/donn
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC list "s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/Dase/Request"
+# MAGIC list "s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/Studies/Dase/parquet"
 
 # COMMAND ----------
 
