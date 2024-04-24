@@ -9,4 +9,4 @@ Here the project path :
 
 Here the S3 path :
 
-![Image du chemin du projet](assets/s3_path.png)
+![Image du chemin du projet](assets/s3_path2.png)
