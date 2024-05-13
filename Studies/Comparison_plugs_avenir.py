@@ -1,6 +1,6 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # Comparaison des deux dataframes de charges venant de Dase et avenir
+# MAGIC # Comparaison des deux dataframes de charges venant de Dase et Avenir
 
 # COMMAND ----------
 
@@ -312,7 +312,7 @@ df_join = pd.merge(df_chargethree_pd, df_plug_renamed_pd, on=['HEAD_VAN','SESSIO
 
 # COMMAND ----------
 
-chargeTrhee_pourcentage = (df_join[df_join["SESSION_STOP_y"].notnull()]['HEAD_VAN'].count() / 203)*100
+chargeTrhee_pourcentage = (df_join[df_join["SESSION_STOP_y"].notnull()]['HEAD_VAN'].count() / 212)*100
 reste_pourcentage = 100-chargeTrhee_pourcentage
 print("Il y a "+ str(chargeTrhee_pourcentage)+ "% du dataframe chargeThree qui a en commun avec celui de plug")
 
@@ -320,17 +320,15 @@ print("Il y a "+ str(chargeTrhee_pourcentage)+ "% du dataframe chargeThree qui a
 
 pourcentages = [chargeTrhee_pourcentage, reste_pourcentage]
 
-# Étiquettes pour chaque tranche du camembert
+
 etiquettes = ['Sessions commun', 'Sessions pas en commun']
 
-# Couleurs pour chaque tranche
 couleurs = ['green', 'red']
 
-# Création du camembert
-plt.figure(figsize=(4, 4))  # Définit la taille de la figure
+plt.figure(figsize=(4, 4))  
 plt.pie(pourcentages, labels=etiquettes, colors=couleurs, autopct='%1.1f%%', startangle=140)
 plt.axis('equal')  # Assure que le camembert soit un cercle
-plt.title('Sessions commun de Avenir dans Dase pour 8 vins')
+plt.title('Sessions commun de Dase dans Avenir pour 8 vins')
 plt.show()
 
 # COMMAND ----------
@@ -343,17 +341,14 @@ print("Il y a "+ str(plug_pourcentage)+ "% du dataframe plug qui a en commun ave
 
 pourcentages = [plug_pourcentage, reste_pourcentage2]
 
-# Étiquettes pour chaque tranche du camembert
 etiquettes = ['Sessions commun', 'Sessions pas en commun']
 
-# Couleurs pour chaque tranche
 couleurs = ['green', 'red']
 
-# Création du camembert
-plt.figure(figsize=(4, 4))  # Définit la taille de la figure
+plt.figure(figsize=(4, 4))  
 plt.pie(pourcentages, labels=etiquettes, colors=couleurs, autopct='%1.1f%%', startangle=140)
 plt.axis('equal')  # Assure que le camembert soit un cercle
-plt.title('Sessions commun de Dase dans Avenir pour 8 vins')
+plt.title('Sessions commun de Avenir dans Dase pour 8 vins')
 plt.show()
 
 # COMMAND ----------
@@ -405,20 +400,20 @@ df_chargethree_pd_copy['STOP-START_heures'] = (df_chargethree_pd_copy['STOP'] - 
 
 fig, axs = plt.subplots(1, 2, figsize=(12, 6))
 
-# Boîte à moustaches pour le premier subplot
+
 sns.boxplot(y='STOP-START_heures', data=df_plug_renamed_pd_copy, ax=axs[0])
 axs[0].set_title('Dase')
 axs[0].set_ylabel('Nombre d\'heures')
 
-# Boîte à moustaches pour le deuxième subplot
+
 sns.boxplot(y='STOP-START_heures', data=df_chargethree_pd_copy, ax=axs[1])
 axs[1].set_title('Avenir')
 axs[1].set_ylabel('Nombre d\'heures')
 
-# Ajuster l'espacement entre les sous-graphiques
+
 plt.tight_layout()
 
-# Affichage des subplots
+
 plt.show()
 
 # COMMAND ----------
@@ -431,12 +426,12 @@ df_chargethree_pd_copy['STOP-START_heures'] = (df_chargethree_pd_copy['STOP'] - 
 
 fig, axs = plt.subplots(1, 2, figsize=(12, 6))
 
-# Boîte à moustaches pour le premier subplot
+
 sns.boxplot(y='STOP-START_heures', data=df_plug_renamed_pd_copy, ax=axs[0])
 axs[0].set_title('Dase')
 axs[0].set_ylabel('Nombre d\'heures')
 axs[0].set_ylim(0, 20)
-# Boîte à moustaches pour le deuxième subplot
+
 sns.boxplot(y='STOP-START_heures', data=df_chargethree_pd_copy, ax=axs[1])
 axs[1].set_title('Avenir')
 axs[1].set_ylabel('Nombre d\'heures')
@@ -444,7 +439,6 @@ axs[1].set_ylim(0, 20)
 # Ajuster l'espacement entre les sous-graphiques
 plt.tight_layout()
 
-# Affichage des subplots
 plt.show()
 
 # COMMAND ----------
@@ -465,12 +459,12 @@ df_chargethree_pd_copy = df_chargethree_pd_copy[df_chargethree_pd_copy["STOP-STA
 
 fig, axs = plt.subplots(1, 2, figsize=(12, 6))
 
-# Boîte à moustaches pour le premier subplot
+
 sns.boxplot(y='STOP-START_heures', data=df_plug_renamed_pd_copy, ax=axs[0])
 axs[0].set_title('Dase')
 axs[0].set_ylabel('Nombre d\'heures')
 
-# Boîte à moustaches pour le deuxième subplot
+
 sns.boxplot(y='STOP-START_heures', data=df_chargethree_pd_copy, ax=axs[1])
 axs[1].set_title('Avenir')
 axs[1].set_ylabel('Nombre d\'heures')
@@ -478,7 +472,7 @@ axs[1].set_ylabel('Nombre d\'heures')
 # Ajuster l'espacement entre les sous-graphiques
 plt.tight_layout()
 
-# Affichage des subplots
+
 plt.show()
 
 # COMMAND ----------
@@ -537,10 +531,20 @@ df_charge_vin_outlier
 
 
 plt.figure(figsize=(10, 6))
-sns.histplot(merged_df['STOP-START_heures'], bins=10, kde=True)
+sns.histplot(df_plug_renamed_pd['STOP-START_heures'], bins=20, kde=True)
 plt.xlabel('Différence entre STOP et START (heures)')
 plt.ylabel('Fréquence')
-plt.title('Histogramme temps de charge')
+plt.title('Histogramme temps de charge Dase')
+plt.show()
+
+# COMMAND ----------
+
+
+plt.figure(figsize=(10, 6))
+sns.histplot(df_chargethree_pd['STOP-START_heures'], bins=20, kde=True)
+plt.xlabel('Différence entre STOP et START (heures)')
+plt.ylabel('Fréquence')
+plt.title('Histogramme temps de charge Avenir')
 plt.show()
 
 
@@ -553,36 +557,32 @@ plt.show()
 
 df_chargethree_pd_copy = df_chargethree_pd.copy()
 df_plug_renamed_pd_copy = df_plug_renamed_pd.copy()
-# Calcul des probabilités par valeur dans la colonne 'SELECTED'
+
+# value_counts compte le nombre d'occurence unique
+# normalize=True donne une proportion (divisé par nb total) plutot qu'un nombre brut
 value_probabilities = df_chargethree_pd_copy['START'].value_counts(normalize=True)
 
 # Ajouter une nouvelle colonne 'PROBABILITY' au DataFrame avec les probabilités correspondantes
 df_chargethree_pd_copy['PROBABILITY'] = df_chargethree_pd_copy['START'].map(value_probabilities)
 
 
-# Calcul des probabilités par valeur dans la colonne 'SELECTED'
 value_probabilities = df_plug_renamed_pd_copy['START'].value_counts(normalize=True)
 
-# Ajouter une nouvelle colonne 'PROBABILITY' au DataFrame avec les probabilités correspondantes
 df_plug_renamed_pd_copy['PROBABILITY'] = df_plug_renamed_pd_copy['START'].map(value_probabilities)
 
-# Créer la figure et le graphique
 
-
-# Premier subplot
 plt.figure(figsize=(10, 8), dpi=80)
 
 sns.histplot(data=df_chargethree_pd_copy, x="START", kde=True, stat='probability', bins=len(df_chargethree_pd_copy['HEAD_VAN'].unique()), weights=df_chargethree_pd_copy['PROBABILITY'], color='green',label='Avenir')
 plt.legend(loc='upper left')
 plt.xticks(rotation=45)
 
-# Deuxième subplot
 
 sns.histplot(data=df_plug_renamed_pd_copy, x="START", kde=True, stat='probability', bins=len(df_plug_renamed_pd_copy['HEAD_VAN'].unique()), weights=df_plug_renamed_pd_copy['PROBABILITY'], color='r', label='Dase')
 plt.title('Probabilities of Values in Avenir et Dase')
 plt.legend(loc='upper left')
 plt.xticks(rotation=45)
-# Affichage des subplots
+
 plt.show()
 
 
@@ -626,7 +626,7 @@ def plot(df, df_79, col_name, VIN, start_time=None, end_time=None):
             # Créer une figure avec deux sous-tracés empilés verticalement
             fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
             
-            # Première subplot pour les données df
+
             ax1.step(df_temp['time'], df_temp['EVNT'], marker='o', linestyle='-', color='b', label=vin, where='post')
             ax1.legend()
             ax1.invert_yaxis()
@@ -652,9 +652,8 @@ def plot(df, df_79, col_name, VIN, start_time=None, end_time=None):
             if start_time is not None and end_time is not None:
                 ax2.set_xlim(start_time_datetime, end_time_datetime)
             
-            # Ajuster l'espacement entre les sous-tracés pour éviter les chevauchements
+
             plt.tight_layout()
-            # Afficher le graphique
 
             plt.show()
             print("----------------------------------------------------------------------------------------------------------------------------------------------------------------")
@@ -664,17 +663,17 @@ def plot(df, df_79, col_name, VIN, start_time=None, end_time=None):
 
 def plot_comparison(df_dase, df_avenir, list_van, start_time=None, end_time=None):
         for i, van in enumerate(list_van):
-            # Filtrer les données selon le VIN et trier par le temps
+
             df_temp_dase = df_dase[df_dase['HEAD_VAN'] == van]
             df_temp_dase = df_temp_dase.sort_values(by='time')
             
             df_temp_avenir = df_avenir[df_avenir['HEAD_VAN'] == van]
             df_temp_avenir = df_temp_avenir.sort_values(by='time')
             
-            # Créer une figure avec deux sous-tracés empilés verticalement
+
             fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
             
-            # Première subplot pour les données df
+
             ax1.step(df_temp_dase['time'], df_temp_dase['EVNT'], marker='o', linestyle='-', color='purple', label=van, where='post', alpha=0.5)
             ax1.legend()
             ax1.invert_yaxis()
@@ -685,6 +684,7 @@ def plot_comparison(df_dase, df_avenir, list_van, start_time=None, end_time=None
             ax_twinx = ax1.twinx()
 
             ax_twinx.bar(x=df_temp_dase['time'], height=df_temp_dase['Diff_soc'], width=0.1, color='orange', alpha=1)
+            ax_twinx.set_ylabel('Quantity of SOC gained during the charge')
             ax_twinx.set_ylim(0, 100)    
 
             ax2.step(df_temp_avenir['time'], df_temp_avenir['EVNT'], marker='o', linestyle='-', color='b', label=van, where='post', alpha=0.5)
@@ -696,12 +696,13 @@ def plot_comparison(df_dase, df_avenir, list_van, start_time=None, end_time=None
             
             
             ax_twinx2 = ax2.twinx()
+            ax_twinx2.set_ylabel('Quantity of SOC gained during the charge')
 
             ax_twinx2.bar(x=df_temp_avenir['time'], height=df_temp_avenir['Diff_soc'], width=0.1, color='orange', alpha=1)
             ax_twinx2.set_ylim(0, 100)
-            # Ajuster l'espacement entre les sous-tracés pour éviter les chevauchements
+
             plt.tight_layout()
-            # Afficher le graphique
+
 
             plt.show()
             print("----------------------------------------------------------------------------------------------------------------------------------------------------------------")
@@ -714,6 +715,7 @@ df_avenir_transfo = transform_to_plot(df_avenir_spark_ready)
 
 # COMMAND ----------
 
+# On met le doublon à 0 pour la difference de soc lorsqu'il y a une decharge
 df_dase_plot = df_dase_transfo.withColumn("prev_value", lag("Diff_soc", 1).over(Window.orderBy("HEAD_VAN", "SESSION_START")))
 df_dase_plot = df_dase_plot.withColumn("Diff_soc", when(col("Diff_soc") == col("prev_value"), 0).otherwise(col("Diff_soc")))
 df_dase_plot = df_dase_plot.drop("prev_value")
