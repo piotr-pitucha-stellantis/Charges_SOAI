@@ -45,27 +45,8 @@ from datetime import datetime
 
 # COMMAND ----------
 
-notebook_path = dbutils.notebook.entry_point.getDbutils().notebook().getContext().notebookPath().getOrElse(None)
-print("Chemin du notebook :", notebook_path)
-
-# COMMAND ----------
-
 # MAGIC %md
 # MAGIC # Parameter Recovery
-
-# COMMAND ----------
-
-# Project launched
-chemin_s3 =  dbutils.widgets.get('Data_path_S3')
-
-contenus = dbutils.fs.ls(chemin_s3)
-
-dossiers = [contenu.path for contenu in contenus if contenu.isDir()]
-
-
-for dossier in dossiers:
-    print("Dossier:", dossier)
-    
 
 # COMMAND ----------
 

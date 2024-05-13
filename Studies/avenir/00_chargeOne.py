@@ -47,19 +47,20 @@ import time
 
 # COMMAND ----------
 
-path =dbutils.widgets.get('Data_path_S3') + "Studies/Avenir/csv/df_10_vin.csv"
-df_vin_spk = (spark.read
-    .format("csv")
-    .option("header",True)
-    .option("index", False)
-    .options(delimiter=',')
-    .load(path)
-    )
-df_vin = df_vin_spk.toPandas()
+# path =dbutils.widgets.get('Data_path_S3') + "Studies/Avenir/csv/df_10_vin.csv"
+# df_vin_spk = (spark.read
+#     .format("csv")
+#     .option("header",True)
+#     .option("index", False)
+#     .options(delimiter=',')
+#     .load(path)
+#     )
+# df_vin = df_vin_spk.toPandas()
 
 # COMMAND ----------
 
-liste_vin_10 = df_vin['VIN'].tolist()
+liste_vin_10 = ["VR3UKZKXZLJ787446", "VR1UJZKXZMW058021", "VR3UHZKXZLT012976", "VR1UJZKXZKW118622", "VR3UHZKXZMT031912", "VR1UJZKXZMW083478", "VR3UHZKXZLT010961", "VR3UHZKXZLT100617", "VR3UHZKXZKT136380", "VR3UHZKXZMT030960"]
+
 
 # COMMAND ----------
 
@@ -67,17 +68,22 @@ liste_vin_10
 
 # COMMAND ----------
 
-# df_79 = tcv.read(
-#         spark, 79, "2020-07-01", "2022-05-01", False, liste_vin_10, 'carbide'
-#     )
-# df_79.write.mode("overwrite").parquet(dbutils.widgets.get('Data_path_S3') + "Studies/Avenir/parquet/79/df_79")
+start_date = "2022-01-01"
+end_data = "2022-02-01"
 
 # COMMAND ----------
 
-# df_74 = tcv.read(
-#         spark, 74, "2020-07-01", "2022-05-01", False, liste_vin_10, 'carbide'
-#     )
-# df_74.write.mode("overwrite").parquet(dbutils.widgets.get('Data_path_S3') + "Studies/Avenir/parquet/74/df_74")
+df_79 = tcv.read(
+        spark, 79,start_date,end_data, False, liste_vin_10, 'carbide'
+    )
+df_79.write.mode("overwrite").parquet(dbutils.widgets.get('Data_path_S3') + "Studies/Avenir/parquet/79/df_79")
+
+# COMMAND ----------
+
+df_74 = tcv.read(
+        spark, 74, start_date, end_data, False, liste_vin_10, 'carbide'
+    )
+df_74.write.mode("overwrite").parquet(dbutils.widgets.get('Data_path_S3') + "Studies/Avenir/parquet/74/df_74")
 
 # COMMAND ----------
 
@@ -259,3 +265,7 @@ print("--- %s seconds ---" % (time.time() - start_time))
 
 
 display(df_vehicle_statuts_trips_gb_DF_join_2)
+
+# COMMAND ----------
+
+

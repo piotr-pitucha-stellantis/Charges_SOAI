@@ -69,6 +69,10 @@ df_vehicle_status=df_vehicle_status.withColumnRenamed('HEAD_VIN','VIN')
 
 # COMMAND ----------
 
+display(df_vehicle_status)
+
+# COMMAND ----------
+
 # modif smaurel 20220622
 # charge_join=df_charge.join(df_vehicle_status.select('VIN','HEAD_COLL_TIMS','VEHC_STTS_CHRG_STT','VEHC_STTS_OUTS_TEMP','VEHC_STTS_ZEV_AUTN','HEAD_MESS_ID'), 
 #                            on=[df_vehicle_status['VIN']==df_charge['HEAD_VIN'],
@@ -76,6 +80,10 @@ df_vehicle_status=df_vehicle_status.withColumnRenamed('HEAD_VIN','VIN')
 charge_join=df_charge.join(df_vehicle_status.select('VIN','HEAD_COLL_TIMS','VEHC_STTS_CHRG_STT','VEHC_STTS_OUTS_TEMP','VEHC_STTS_ZEV_AUTN','HEAD_MESS_ID','HEAD_SESS_ID'), 
                            on=[df_vehicle_status['VIN']==df_charge['HEAD_VIN'],
                                df_vehicle_status['HEAD_COLL_TIMS'].between(df_charge['START'],df_charge['STOP'])], how='leftouter')
+
+# COMMAND ----------
+
+display(charge_join)
 
 # COMMAND ----------
 
@@ -169,9 +177,17 @@ df_charge_join_final = (df_charge_join_1.select('HEAD_VIN','START','HEAD_SESS_ID
 
 # COMMAND ----------
 
+display(df_charge_join_final)
+
+# COMMAND ----------
+
 # jointure avec le dataframe charge_two pour ajouter les nouvelles colonnes
 
 df_charge_join_4=df_charge.join(df_charge_join_final, on=['HEAD_VIN','START'], how='leftouter')
+
+# COMMAND ----------
+
+display(df_charge_join_4)
 
 # COMMAND ----------
 
@@ -179,10 +195,14 @@ df_charge_join_4=df_charge.join(df_charge_join_final, on=['HEAD_VIN','START'], h
 # df_to_save=df_charge_join_4.select('HEAD_VIN','START','STOP','msg_id_start','msg_id_stop','TEMP_START_ID','TEMP_STOP_ID','AUTONOMY_START_ID','AUTONOMY_STOP_ID',
 #                      'SOC_START','SOC_STOP')
 
-df_to_save=df_charge_join_4.select('HEAD_VIN','START','STOP','SOC_START','SOC_STOP','SOC_START_ID','SOC_STOP_ID',
+df_to_save=df_charge_join_4.select('HEAD_VIN','HEAD_SESS_ID_start','HEAD_SESS_ID_stop','HEAD_MESS_ID_start',"HEAD_MESS_ID_stop",'START','STOP','SOC_START','SOC_STOP','SOC_START_ID','SOC_STOP_ID',
                                    'TEMP_START_ID','TEMP_STOP_ID','AUTONOMY_START_ID','AUTONOMY_STOP_ID',
                      )
 
+
+# COMMAND ----------
+
+display(df_to_save)
 
 # COMMAND ----------
 
@@ -196,7 +216,7 @@ df_to_save.write.mode('overwrite').parquet(path_result2)
 
 # COMMAND ----------
 
-
+df_to_save.write.format("delta").saveAsTable("dafe_dev.sd43982.ChargeThree02")
 
 # COMMAND ----------
 

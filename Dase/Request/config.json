@@ -1,8 +1,8 @@
 {
-  "vin": ["VF3M4DGZUMS015260"],
+  "vin": ["VR3UKZKXZLJ787446", "VR1UJZKXZMW058021", "VR3UHZKXZLT012976", "VR1UJZKXZKW118622", "VR3UHZKXZMT031912", "VR1UJZKXZMW083478", "VR3UHZKXZLT010961", "VR3UHZKXZLT100617", "VR3UHZKXZKT136380", "VR3UHZKXZMT030960"],
   "start_date": "2022-01-01",
   "end_date": "2022-02-01",
-  "folder_name": "Ugo_first_test",
+  "folder_name": "VIN_comparison_10_from_plug",
   "start_periode_plot" : "2022-01-17",
-  "end_periode_plot" : "2022-01-18",
+  "end_periode_plot" : "2022-01-18"
 }

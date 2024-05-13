@@ -67,7 +67,7 @@ print("Chemin du notebook :", notebook_path)
 
 # COMMAND ----------
 
-with open('/Workspace/Users/ugo.merlier@stellantis.com/Project/chrg00/PRJ_2024/config.json', 'r') as file:
+with open('/Workspace/Repos/ugo.merlier@stellantis.com/CHRG00/Dase/Request/config.json', 'r') as file:
     data = json.load(file)
 
 # Extraire les informations individuelles
@@ -77,7 +77,6 @@ end_periode_plot = data["end_periode_plot"]
 start_date = data["start_date"]
 end_date = data["end_date"]
 folder_name = data["folder_name"]
-save = data["save_plot"]
 
 # Convertir la chaîne en objet datetime
 date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
