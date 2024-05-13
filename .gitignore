@@ -129,3 +129,6 @@ script/data/saved_url.txt
 *.pkl
 #RCVC02
 /RVC02
+
+.databricks
+.vscode
