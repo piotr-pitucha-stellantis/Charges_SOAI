@@ -67,7 +67,7 @@ df_VIN.count()
 
 # COMMAND ----------
 
-
+# MAGIC %fs ls FileStore/tables
 
 # COMMAND ----------
 

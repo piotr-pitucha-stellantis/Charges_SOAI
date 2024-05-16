@@ -110,16 +110,16 @@ spark_df.write.mode('overwrite').parquet(dbutils.widgets.get('Data_path_S3')+fol
 
 # COMMAND ----------
 
-def extract_79_74_and_save (list_vin, start_date, end_date):
+def extract_79_68_and_save (list_vin, start_date, end_date):
     df_79 = tcv.read(
         spark, 79, start_date, end_date, False, list_vin, 'carbide'
     )
     df_79.write.mode("overwrite").parquet(dbutils.widgets.get('Data_path_S3')+folder_name  +"/Raw/79")
     
-    df_74 = tcv.read(
-        spark, 74, start_date, end_date, False, list_vin, 'carbide'
+    df_68 = tcv.read(
+        spark, 68, start_date, end_date, False, list_vin, 'carbide'
     )
-    df_74.write.mode("overwrite").parquet(dbutils.widgets.get('Data_path_S3')+folder_name  +"/Raw/74")
+    df_74.write.mode("overwrite").parquet(dbutils.widgets.get('Data_path_S3')+folder_name  +"/Raw/68")
 
 # COMMAND ----------
 

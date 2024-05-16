@@ -5,7 +5,7 @@
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ![Name of the image](https://raw.githubusercontent.com/StellantisGADP/Charges_SOAI/main/assets/powerpoint_cas_pratique.png)
+# MAGIC ![Name of the image](https://raw.github.psa-cloud.com/gtf20/pwi00/20230424_Ugo/img/Images_Ugo/Charges_SOAI/powerpoint_cas_pratique.png?token=GHSAT0AAAAAAAAAJIXY2KGFWCPMIBR3NTXQZSDQKMQ)
 
 # COMMAND ----------
 
@@ -118,9 +118,8 @@ def vin_pas_en_commun(list_vin_Avenir,list_vin_Dase):
 
 # COMMAND ----------
 
-path_raw_plug_74 = "s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/Studies/Avenir/parquet/74"
-path_raw_plug_79 = "s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/Studies/Avenir/parquet/79"
-path_raw_plug_68 = "s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/Studies/Avenir/parquet/68"
+path_raw_plug_74 = "s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/Dase/Request/10_VIN_for_comparison_avenir/Raw/74"
+path_raw_plug_79 = "s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/Dase/Request/10_VIN_for_comparison_avenir/Raw/79"
 
 # COMMAND ----------
 
@@ -137,20 +136,12 @@ df_79 = (spark.read
   .load(path_raw_plug_79)
 )
 
-df_68 = (spark.read
-  .format("parquet")
-  .option("header",True)
-  .load(path_raw_plug_68)
-)
-
 # COMMAND ----------
 
 df_79_ano = anonymise_dataframe(df_79,'HEAD_VIN')
 df_79_ano =df_79_ano.withColumnRenamed('VAN' , 'HEAD_VAN')
 df_74_ano = anonymise_dataframe(df_74,'HEAD_VIN')
 df_74_ano =df_74_ano.withColumnRenamed('VAN' , 'HEAD_VAN')
-df_68_ano = anonymise_dataframe(df_68,'HEAD_VIN')
-df_68_ano =df_68_ano.withColumnRenamed('VAN' , 'HEAD_VAN')
 
 # COMMAND ----------
 
@@ -186,16 +177,15 @@ list_vin_Dase
 
 # COMMAND ----------
 
-# # Anonymiser la liste
-# liste_anonymisee =['a440072251b85bb2575fca092c59fbbd',
-#  '29d03881949a474ee065cca3dc96b8c0',
-#  'facb8c66f613048b17f7660924ef6b61',
-#  '5c3d74294674c3060766e160b134d8ce',
-#  'fc7c39cbf88aa5507a69824291f11c55',
-#  '97574ea267e2a878326c856b7dd92f79',
-#  '57ab2104d6abeba17fc16d6294fefcc7',
-#  '8f44cb222cf4953c984c2ba5e68fce4c',
-#  '20923ca744bf0e82f8f4e327c818be8b']
+# Anonymiser la liste
+liste_anonymisee =['a440072251b85bb2575fca092c59fbbd',
+ '29d03881949a474ee065cca3dc96b8c0',
+ 'facb8c66f613048b17f7660924ef6b61',
+ '5c3d74294674c3060766e160b134d8ce',
+ 'fc7c39cbf88aa5507a69824291f11c55',
+ '57ab2104d6abeba17fc16d6294fefcc7',
+ '8f44cb222cf4953c984c2ba5e68fce4c',
+ '20923ca744bf0e82f8f4e327c818be8b']
 
 # COMMAND ----------
 
@@ -375,8 +365,6 @@ df_dase_spark_ready_join = df_dase_spark_ready_join.withColumnRenamed("HEAD_VAN"
 
 # COMMAND ----------
 
-# DBTITLE 1,CrossJoin with Date Charge Commune
-# crossjoin = jointure cartésienne
 df_Date_charge_commune = df_dase_spark_ready_join.crossJoin(df_avenir_spark_ready_join)\
     .withColumn("Date_charge_commune", 
                 (df_dase_spark_ready_join.START_Dase.between(df_avenir_spark_ready_join.START,df_avenir_spark_ready_join.STOP)) |
@@ -385,18 +373,17 @@ df_Date_charge_commune = df_dase_spark_ready_join.crossJoin(df_avenir_spark_read
                  (df_avenir_spark_ready_join.STOP.between(df_dase_spark_ready_join.START_Dase, df_dase_spark_ready_join.STOP_Dase)))
 
 
-df_join = df_Date_charge_commune.filter("Date_charge_commune").drop("Date_charge_commune")
-#df_join = df_join.drop("Date_charge_commune").dropDuplicates(["HEAD_VAN_Dase", "START_Dase", "STOP_Dase"])
+df_join = df_Date_charge_commune.filter("Date_charge_commune")
+df_join = df_join.drop("Date_charge_commune").dropDuplicates(["HEAD_VAN_Dase", "START_Dase", "STOP_Dase"])
 
 # COMMAND ----------
 
-# DBTITLE 1,Convert DataFrame to Pandas DataFrame.
 df_join.toPandas()
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ![Name of the image](https://raw.githubusercontent.com/StellantisGADP/Charges_SOAI/main/assets/join.png)
+# MAGIC ![Name of the image](https://raw.github.psa-cloud.com/gtf20/pwi00/20230424_Ugo/img/Images_Ugo/Charges_SOAI/ensemble_2.png?token=GHSAT0AAAAAAAAAJIXZPJJ33B5DA5FFIAASZSEQBRA)
 
 # COMMAND ----------
 
@@ -415,84 +402,9 @@ df_pandas = df_join_diff.select("difference_absolue").toPandas()
 # Tracer l'histogramme avec Seaborn
 plt.figure(figsize=(10, 6))  # Ajuster la taille de la figure
 sns.histplot(df_pandas['difference_absolue'])  # Tracer l'histogramme avec KDE
-plt.xlabel('Difference du temps de charge (en heure)')
+plt.xlabel('Difference du temps de charge')
 plt.ylabel('Fréquence')
-plt.title('Histogramme difference du temps de charge entre Dase et Avenir')
-plt.show()
-
-# COMMAND ----------
-
-df_join_diff_filtered = df_join_diff.filter(F.col("difference_absolue") >= 40)
-
-# COMMAND ----------
-
-
-df_join_diff_filtereddf_join_diff_pd = df_join_diff_filtered.toPandas()
-
-
-plt.figure(figsize=(10, 8), dpi=80)
-
-min_list = []
-min_list.append(df_join_diff_filtereddf_join_diff_pd['STOP-START_heures_Dase'].min())
-min_list.append(df_join_diff_filtereddf_join_diff_pd['STOP-START_heures'].min())
-min_diff_soc = builtins.min(min_list)
-
-max_list = []
-max_list.append(df_join_diff_filtereddf_join_diff_pd['STOP-START_heures_Dase'].max())
-max_list.append(df_join_diff_filtereddf_join_diff_pd['STOP-START_heures'].max())
-max_diff_soc = builtins.max(max_list)
-
-
-# Spécifiez la plage des bins à utiliser pour les deux histogrammes
-bin_range = (min_diff_soc, max_diff_soc)
-
-
-sns.histplot(data=df_join_diff_filtereddf_join_diff_pd, x="STOP-START_heures", binrange=bin_range, bins=10, color='green',label='Avenir')
-plt.legend(loc='upper left')
-plt.xticks(rotation=45)
-
-
-sns.histplot(data=df_join_diff_filtereddf_join_diff_pd, x="STOP-START_heures_Dase", binrange=bin_range, bins=10, color='r', label='Dase')
-plt.title('Distrubution du temps de charge lorsque la difference est supèrieur à 40h')
-plt.legend(loc='upper left')
-plt.xticks(rotation=45)
-
-plt.show()
-
-
-# COMMAND ----------
-
-df_avenir_spark_ready_join_filtered = df_avenir_spark_ready_join.filter(F.col("STOP-START_heures")<=50)
-
-df_Date_charge_commune_v2 = df_dase_spark_ready_join.crossJoin(df_avenir_spark_ready_join_filtered)\
-    .withColumn("Date_charge_commune", 
-                (df_dase_spark_ready_join.START_Dase.between(df_avenir_spark_ready_join_filtered.START,df_avenir_spark_ready_join_filtered.STOP)) |
-                 (df_dase_spark_ready_join.STOP_Dase.between(df_avenir_spark_ready_join_filtered.START, df_avenir_spark_ready_join_filtered.STOP)) |
-                 (df_avenir_spark_ready_join_filtered.START.between(df_dase_spark_ready_join.START_Dase,df_dase_spark_ready_join.STOP_Dase)) |
-                 (df_avenir_spark_ready_join_filtered.STOP.between(df_dase_spark_ready_join.START_Dase, df_dase_spark_ready_join.STOP_Dase)))
-
-
-df_join_v2 = df_Date_charge_commune_v2.filter("Date_charge_commune")
-df_join_v2 = df_join_v2.drop("Date_charge_commune").dropDuplicates(["HEAD_VAN_Dase", "START_Dase", "STOP_Dase"])
-
-df_join_diff_v2 = df_join_v2.withColumn("difference_absolue", abs(df_join["STOP-START_heures_Dase"] - df_join["STOP-START_heures"]))
-
-# COMMAND ----------
-
-moyenne_difference_absolue_v2 = df_join_diff_v2.agg(avg("difference_absolue")).collect()[0][0]
-
-print("La moyenne de la colonne difference_absolue est :"+str( moyenne_difference_absolue_v2) + " heures")
-
-# COMMAND ----------
-
-df_pandas = df_join_diff_v2.select("difference_absolue").toPandas()
-
-# Tracer l'histogramme avec Seaborn
-plt.figure(figsize=(10, 6))  # Ajuster la taille de la figure
-sns.histplot(df_pandas['difference_absolue'])  # Tracer l'histogramme avec KDE
-plt.xlabel('Difference du temps de charge (en heure)')
-plt.ylabel('Fréquence')
-plt.title('Histogramme difference du temps de charge entre Dase et Avenir')
+plt.title('Histogramme difference du temps de charge en heure entre Dase et Avenir')
 plt.show()
 
 # COMMAND ----------
@@ -500,7 +412,86 @@ plt.show()
 # MAGIC %md
 # MAGIC ### Conclusion : 
 # MAGIC
-# MAGIC Sur les 86 charges commune, on aperçoit une grande difference concernant le temps de charge. Cela est du aux outliers présents dans avenir. Lors de la jointure les outliers sont associés à plusieurs charges du à leur range élevé. Comme on le voit après avoir enlever les outlier la difference de temps de charge diminue passant d'une moyenne de 11h à 4h.
+# MAGIC
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC Jointure afin de voir les vehicules et messages en commun
+
+# COMMAND ----------
+
+df_join = pd.merge(df_chargethree_pd, df_plug_renamed_pd, on=['HEAD_VAN','SESSION_START'], how='left')
+
+# COMMAND ----------
+
+chargeTrhee_pourcentage = (df_join[df_join["SESSION_STOP_y"].notnull()]['HEAD_VAN'].count() / df_chargethree_pd['HEAD_VAN'].count())*100
+reste_pourcentage = 100-chargeTrhee_pourcentage
+print("Il y a "+ str(chargeTrhee_pourcentage)+ "% du dataframe chargeThree qui a en commun avec celui de plug")
+
+# COMMAND ----------
+
+pourcentages = [chargeTrhee_pourcentage, reste_pourcentage]
+
+
+etiquettes = ['Sessions commun', 'Sessions pas en commun']
+
+couleurs = ['green', 'red']
+
+plt.figure(figsize=(4, 4))  
+plt.pie(pourcentages, labels=etiquettes, colors=couleurs, autopct='%1.1f%%', startangle=140)
+plt.axis('equal')  # Assure que le camembert soit un cercle
+plt.title('Sessions commun de Dase dans Avenir pour 8 vins')
+plt.show()
+
+# COMMAND ----------
+
+plug_pourcentage = (df_join[df_join["SESSION_STOP_y"].notnull()]['HEAD_VAN'].count() / df_plug_renamed_pd['HEAD_VAN'].count())*100
+reste_pourcentage2 = 100-plug_pourcentage
+print("Il y a "+ str(plug_pourcentage)+ "% du dataframe plug qui a en commun avec celui de chargeThree")
+
+# COMMAND ----------
+
+pourcentages = [plug_pourcentage, reste_pourcentage2]
+
+etiquettes = ['Sessions commun', 'Sessions pas en commun']
+
+couleurs = ['green', 'red']
+
+plt.figure(figsize=(4, 4))  
+plt.pie(pourcentages, labels=etiquettes, colors=couleurs, autopct='%1.1f%%', startangle=140)
+plt.axis('equal')  # Assure que le camembert soit un cercle
+plt.title('Sessions commun de Avenir dans Dase pour 8 vins')
+plt.show()
+
+# COMMAND ----------
+
+print("Il y a "+ str(len(df_join[df_join["SESSION_STOP_y"].notnull()]['HEAD_VAN'].unique().tolist()))+ " vins en commun")
+
+# COMMAND ----------
+
+df_chargethree_pd['type_charge'] = "AVENIR"
+df_plug_renamed_pd['type_charge'] = "DASE"
+
+# COMMAND ----------
+
+merged_df = pd.concat([df_chargethree_pd, df_plug_renamed_pd], ignore_index=True)
+
+# COMMAND ----------
+
+merged_df.sort_values(by='START')
+
+# COMMAND ----------
+
+merged_df[merged_df["HEAD_VAN"] == "29d03881949a474ee065cca3dc96b8c0"].sort_values(by='START')
+
+# COMMAND ----------
+
+merged_df[merged_df["HEAD_VAN"] == "8f44cb222cf4953c984c2ba5e68fce4c"].sort_values(by='START')
+
+# COMMAND ----------
+
+merged_df
 
 # COMMAND ----------
 
@@ -604,13 +595,31 @@ df_chargethree_pd_copy[df_chargethree_pd_copy["STOP-START_heures"]< 0]
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC Les plus grands outliers pour les deux dataframes
+
+# COMMAND ----------
+
+stats_plug = df_plug_renamed_pd_copy['STOP-START_heures'].describe()
+stats_charge = df_chargethree_pd_copy['STOP-START_heures'].describe()
+
+outliers_plug = df_plug_renamed_pd_copy[(df_plug_renamed_pd_copy['STOP-START_heures'] < stats_plug['25%']) | (df_plug_renamed_pd_copy['STOP-START_heures'] > stats_plug['75%'])]
+outliers_charge = df_chargethree_pd_copy[(df_chargethree_pd_copy['STOP-START_heures'] < stats_charge['25%']) | (df_chargethree_pd_copy['STOP-START_heures'] > stats_charge['75%'])]
+
+max_diff_hours_plug = outliers_plug['STOP-START_heures'].max()
+max_diff_hours_charge = outliers_charge['STOP-START_heures'].max()
+df_plug_vin_outlier = df_plug_renamed_pd_copy[df_plug_renamed_pd_copy["STOP-START_heures"] == max_diff_hours_plug]
+df_charge_vin_outlier = df_chargethree_pd_copy[df_chargethree_pd_copy['STOP-START_heures'] == max_diff_hours_charge]
+
+
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC Outlier avec le plus grand temps de charge coté Dase
 
 # COMMAND ----------
 
-max_temps_charge_dase = df_plug_renamed_pd['STOP-START_heures'].max()
-df_dase_max_temps_charge = df_plug_renamed_pd[df_plug_renamed_pd['STOP-START_heures'] == max_temps_charge_dase]
-df_dase_max_temps_charge
+df_plug_vin_outlier
 
 # COMMAND ----------
 
@@ -619,16 +628,7 @@ df_dase_max_temps_charge
 
 # COMMAND ----------
 
-max_temps_charge_avenir = df_chargethree_pd['STOP-START_heures'].max()
-df_avenir_max_temps_charge = df_chargethree_pd[df_chargethree_pd['STOP-START_heures'] == max_temps_charge_avenir]
-df_avenir_max_temps_charge
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ### Conclusion :
-# MAGIC
-# MAGIC On retrouve avec les boites à moustaches la plus grande quantité d'outlier sur le temps de charge pour le traitement avenir. De plus, on aperçoit qu'il y a au moins 1 temps de charge négative pour Avenir.
+df_charge_vin_outlier
 
 # COMMAND ----------
 
@@ -641,11 +641,6 @@ df_avenir_max_temps_charge
 # MAGIC Distribution temps de charge
 
 # COMMAND ----------
-
-
-
-df_chargethree_pd_copy = df_chargethree_pd.copy()
-df_plug_renamed_pd_copy = df_plug_renamed_pd.copy()
 
 min_list = []
 min_list.append(df_chargethree_pd_copy['STOP-START_heures'].min())
@@ -665,14 +660,14 @@ bin_range = (min_diff_soc, max_diff_soc)
 
 fig, axs = plt.subplots(2, 1, figsize=(12, 6), sharex=True)
 
-sns.histplot(df_plug_renamed_pd_copy['STOP-START_heures'], binrange=bin_range,  ax=axs[0])
+sns.histplot(df_plug_renamed_pd['STOP-START_heures'], binrange=bin_range,  ax=axs[0])
 axs[0].set_xlabel('Différence entre STOP et START (heures)')
 axs[0].set_ylabel('Fréquence')
 axs[0].set_title('Histogramme temps de charge Dase')
 
 
 
-sns.histplot(df_chargethree_pd_copy['STOP-START_heures'], binrange=bin_range,  ax=axs[1])
+sns.histplot(df_chargethree_pd['STOP-START_heures'], binrange=bin_range,  ax=axs[1])
 axs[1].set_xlabel('Différence entre STOP et START (heures)')
 axs[1].set_ylabel('Fréquence')
 axs[1].set_title('Histogramme temps de charge Avenir')
@@ -683,12 +678,15 @@ plt.tight_layout()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ![Name of the image](https://raw.githubusercontent.com/StellantisGADP/Charges_SOAI/main/assets/conclusion_cas_pratique.png)
+# MAGIC Distribution frequence d'apparition des dates aux quelle les véhicules ont été chargés
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC Etude de la distribution sur la difference de SOC
+df_plug_renamed_pd
+
+# COMMAND ----------
+
+df_chargethree_pd
 
 # COMMAND ----------
 
@@ -713,12 +711,12 @@ max_diff_soc = builtins.max(max_list)
 bin_range = (min_diff_soc, max_diff_soc)
 
 
-sns.histplot(data=df_chargethree_pd_copy, x="Diff_soc",  binrange=bin_range, bins=10, color='green',label='Avenir')
+sns.histplot(data=df_chargethree_pd_copy, x="Diff_soc", kde=True, binrange=bin_range, bins=10, color='green',label='Avenir')
 plt.legend(loc='upper left')
 plt.xticks(rotation=45)
 
 
-sns.histplot(data=df_plug_renamed_pd_copy, x="Diff_soc", binrange=bin_range, bins=10, color='r', label='Dase')
+sns.histplot(data=df_plug_renamed_pd_copy, x="Diff_soc", kde=True, binrange=bin_range, bins=10, color='r', label='Dase')
 plt.title('Distrubution du soc gagné durant les charges')
 plt.legend(loc='upper left')
 plt.xticks(rotation=45)
@@ -728,8 +726,37 @@ plt.show()
 
 # COMMAND ----------
 
+df_chargethree_pd_copy = df_chargethree_pd.copy()
+df_plug_renamed_pd_copy = df_plug_renamed_pd.copy()
 
-    
+
+# value_counts compte le nombre d'occurence unique
+# normalize=True donne une proportion (divisé par nb total) plutot qu'un nombre brut
+value_probabilities = df_chargethree_pd_copy['START'].value_counts(normalize=True)
+
+# Ajouter une nouvelle colonne 'PROBABILITY' au DataFrame avec les probabilités correspondantes
+df_chargethree_pd_copy['PROBABILITY'] = df_chargethree_pd_copy['START'].map(value_probabilities)
+
+
+value_probabilities = df_plug_renamed_pd_copy['START'].value_counts(normalize=True)
+
+df_plug_renamed_pd_copy['PROBABILITY'] = df_plug_renamed_pd_copy['START'].map(value_probabilities)
+
+
+plt.figure(figsize=(10, 8), dpi=80)
+
+sns.histplot(data=df_chargethree_pd_copy, x="START", kde=True, stat='probability', bins=len(df_chargethree_pd_copy['HEAD_VAN'].unique()), weights=df_chargethree_pd_copy['PROBABILITY'], color='green',label='Avenir')
+plt.legend(loc='upper left')
+plt.xticks(rotation=45)
+
+
+sns.histplot(data=df_plug_renamed_pd_copy, x="START", kde=True, stat='probability', bins=len(df_plug_renamed_pd_copy['HEAD_VAN'].unique()), weights=df_plug_renamed_pd_copy['PROBABILITY'], color='r', label='Dase')
+plt.title('Probabilities of Values in Avenir et Dase')
+plt.legend(loc='upper left')
+plt.xticks(rotation=45)
+
+plt.show()
+
 
 # COMMAND ----------
 
@@ -752,34 +779,12 @@ def transform_to_plot(df_plug):
 
 # COMMAND ----------
 
-def plot(
-        df1,
-        df2,
-        df_68,
-        df_74,
-        df_79,
-        VIN,
-        start_time=None,
-        end_time=None,
-        col_name1 = "BATT_STTS_SUMM_SOC",
-        col_name2 = "VEHC_STTS_CHRG_STT",
-        col_name3 ="BATT_CHRG_STT",
-        col_name4="BATT_STTS_SUMM_CHRG_STT",
-        col_name5="VEHC_STTS_LIFT_MILG",
-        col_name6="BATT_LOAD_LEVL"):
+def plot(df, df_79, col_name, VIN, start_time=None, end_time=None):
         for i, vin in enumerate(VIN):
             # Filtrer les données selon le VIN et trier par le temps
-            df1_temp = df1[df1['HEAD_VAN'] == vin]
-            df1_temp = df1_temp.sort_values(by='time')
-            df2_temp = df2[df2['HEAD_VAN'] == vin]
-            df2_temp = df2_temp.sort_values(by='time')
-            df_79_temp = df_79[df_79['HEAD_VAN'] == vin]
-            df_79_temp = df_79_temp.sort_values(by='HEAD_COLL_TIMS')
-            df_74_temp = df_74[df_74['HEAD_VAN'] == vin]
-            df_74_temp = df_74_temp.sort_values(by='HEAD_COLL_TIMS') 
-            df_68_temp = df_68[df_68['HEAD_VAN'] == vin]
-            df_68_temp = df_68_temp.sort_values(by='HEAD_COLL_TIMS') 
-
+            df_temp = df[df['HEAD_VAN'] == vin]
+            df_temp = df_temp.sort_values(by='time')
+            
             # Convertir les chaînes de caractères en objets datetime si spécifié
             if start_time is not None:
                 start_time_datetime = datetime.strptime(start_time, '%Y-%m-%d')
@@ -787,75 +792,34 @@ def plot(
                 end_time_datetime = datetime.strptime(end_time, '%Y-%m-%d')
             
             # Créer une figure avec deux sous-tracés empilés verticalement
-            fig, (ax1, ax2, ax3,ax4,ax5,ax6, ax7, ax8) = plt.subplots(8, 1, figsize=(17, 13), sharex=True)
+            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
             
-            # Dase plug unplug Subplot
-            ax1.step(df2_temp['time'], df2_temp['EVNT'], marker='o', linestyle='-', color='purple', label=vin, where='post')
+
+            ax1.step(df_temp['time'], df_temp['EVNT'], marker='o', linestyle='-', color='b', label=vin, where='post')
             ax1.legend()
             ax1.invert_yaxis()
             ax1.set_ylabel('EVNT')
             ax1.tick_params(axis='x', rotation=45)
-            ax1.set_title('Plug and unplug graph Dase')
-
-            #Avenir plug unplug Subplot
-            ax2.step(df1_temp['time'], df1_temp['EVNT'], marker='o', linestyle='-', color='b', label=vin, where='post')
-            ax2.legend()
-            ax2.invert_yaxis()
-            ax2.set_ylabel('EVNT')
-            ax2.tick_params(axis='x', rotation=45)
-            ax2.set_title('Plug and unplug graph Avenir')
-        
-            # First avenir data subplot
-            ax3.plot(df_79_temp['HEAD_COLL_TIMS'], df_79_temp[col_name1], marker='o', linestyle='-', color='green')
-            ax3.set_title('Evolution du SOC avec la colonne ' + col_name1 + " venant du message 79  -- AVENIR --")
-            ax3.set_xlabel('Time')
-            ax3.set_ylabel('State of Charge (%)')
-            ax3.grid(True)
-            ax3.tick_params(axis='x', rotation=45)
-            
-            #Second avenir data subplot
-            ax4.plot(df_74_temp['HEAD_COLL_TIMS'], df_74_temp[col_name2], marker='o', linestyle='-', color='cyan')
-            ax4.set_title('Evolution du SOC avec la colonne ' + col_name2 + " venant du message 74  -- AVENIR --")
-            ax4.set_xlabel('Time')
-            ax4.set_ylabel('State of Charge (%)')
-            ax4.grid(True)
-            ax4.tick_params(axis='x', rotation=45)
-            
-            #Third avenir data subplot
-            ax5.plot(df_74_temp['HEAD_COLL_TIMS'], df_74_temp[col_name5], marker='o', linestyle='-', color='#f0006a')
-            ax5.set_title('Evolution des kilometres parcourus avec la colonne ' + col_name5 + " venant du message 74 -- AVENIR -- ")
-            ax5.set_xlabel('Time')
-            ax5.set_ylabel('KM')
-            ax5.grid(True)
-            ax5.tick_params(axis='x', rotation=45)
-            
-            #First dase data subplot
-            ax6.plot(df_68_temp['HEAD_COLL_TIMS'], df_68_temp[col_name3], marker='o', linestyle='-', color='orange')
-            ax6.set_title('Evolution du SOC avec la colonne ' + col_name3 + " venant du message 68  -- DASE -- ")
-            ax6.set_xlabel('Time')
-            ax6.set_ylabel('State value (0,1,3,4)')
-            ax6.grid(True)
-            ax6.tick_params(axis='x', rotation=45)
-            
-            #Second dase data subplot
-            ax7.plot(df_79_temp['HEAD_COLL_TIMS'], df_79_temp[col_name4], marker='o', linestyle='-', color='#ff2a2e')
-            ax7.set_title('Evolution du SOC avec la colonne ' + col_name4 + " venant du message 79  -- DASE -- ")
-            ax7.set_xlabel('Time')
-            ax7.set_ylabel('State value (0,1,3,4)')
-            ax7.grid(True)
-            ax7.tick_params(axis='x', rotation=45)
-            
-            #Third dase data subplot
-            ax8.plot(df_68_temp['HEAD_COLL_TIMS'], df_68_temp[col_name6], marker='o', linestyle='-', color='#96a816')
-            ax8.set_title('Niveau de charge ' + col_name6 + " venant du message 68  -- DASE -- ")
-            ax8.set_xlabel('Time')
-            ax8.set_ylabel('KM')
-            ax8.grid(True)
-            ax8.tick_params(axis='x', rotation=45)
+            ax1.set_title('Plug and unplug graph')
             
             # Limiter l'intervalle de temps si spécifié
             if start_time is not None and end_time is not None:
-                ax8.set_xlim(start_time_datetime, end_time_datetime)
+                ax1.set_xlim(start_time_datetime, end_time_datetime)
+
+            df_79_temp = df_79[df_79['HEAD_VAN'] == vin]
+            # Deuxième subplot pour les données df_79
+            df_79_temp = df_79_temp.sort_values(by='HEAD_COLL_TIMS')  # Tri par HEAD_COLL_TIMS
+            ax2.plot(df_79_temp['HEAD_COLL_TIMS'], df_79_temp[col_name], marker='o', linestyle='-', color='orange')
+            ax2.set_title('SOC evolution')
+            ax2.set_xlabel('Time')
+            ax2.set_ylabel('State of Charge (%)')
+            ax2.grid(True)
+            ax2.tick_params(axis='x', rotation=45)
+            
+            # Limiter l'intervalle de temps si spécifié
+            if start_time is not None and end_time is not None:
+                ax2.set_xlim(start_time_datetime, end_time_datetime)
+            
 
             plt.tight_layout()
 
@@ -878,7 +842,7 @@ def plot_comparison(df_dase, df_avenir, list_van, start_time=None, end_time=None
         ax1.step(df_temp_dase['time'], df_temp_dase['EVNT'], marker='o', linestyle='-', color='purple', label=van, where='post', alpha=0.5)
         ax1.invert_yaxis()
         ax1.set_ylabel('EVNT')
-        ax1.set_title('Plug and unplug graph Dase')
+        ax1.set_title('Plug and unplug graph dase')
 
         ax_twinx = ax1.twinx()
         ax_twinx.bar(x=df_temp_dase['time'], height=df_temp_dase['Diff_soc'], width=0.1, color='orange', alpha=1,label="Quantité de soc gagné durant la charge")
@@ -886,7 +850,7 @@ def plot_comparison(df_dase, df_avenir, list_van, start_time=None, end_time=None
         ax2.step(df_temp_avenir['time'], df_temp_avenir['EVNT'], marker='o', linestyle='-', color='b', label=van, where='post', alpha=0.5)
         ax2.invert_yaxis()
         ax2.set_ylabel('EVNT')
-        ax2.set_title('Plug and unplug graph Avenir')
+        ax2.set_title('Plug and unplug graph avenir')
 
         ax_twinx2 = ax2.twinx()
         ax_twinx2.bar(x=df_temp_avenir['time'], height=df_temp_avenir['Diff_soc'], width=0.1, color='orange', alpha=1, label="Quantité de SOC gagné durant la charge")
@@ -897,8 +861,7 @@ def plot_comparison(df_dase, df_avenir, list_van, start_time=None, end_time=None
         ax_twinx.legend(loc='upper right', bbox_to_anchor=(1, 0.8))
         ax2.legend(loc='upper right', bbox_to_anchor=(1, 1))
         ax_twinx2.legend(loc='upper right', bbox_to_anchor=(1, 0.8))
-        ax1.tick_params(axis='x', rotation=45)
-        ax2.tick_params(axis='x', rotation=45)
+
         plt.tight_layout()
         plt.show()
         print("----------------------------------------------------------------------------------------------------------------------------------------------------------------")
@@ -927,50 +890,11 @@ plot_comparison(df_dase_plot.toPandas(),df_avenir_plot.toPandas(),list_vin_Aveni
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC ## Etude générale
+plot(df_avenir_transfo.toPandas(), df_79_ano.toPandas(),"BATT_STTS_SUMM_SOC", list_vin_Avenir)
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC
-# MAGIC Valeures possible pour BATT_CHRG_STT :
-# MAGIC <br>
-# MAGIC 0 : Disconnected <br>
-# MAGIC 1 : In progress <br>
-# MAGIC 2 : Failure <br>
-# MAGIC 3 : Stopped <br>
-# MAGIC 4 : Finished <br>
-# MAGIC 5 : Reserved <br>
-# MAGIC 6 : Reserved <br>
-# MAGIC 7 : Reserved<br>
-
-# COMMAND ----------
-
-# DBTITLE 1,a
-plot(df_avenir_transfo.toPandas(), df_dase_transfo.toPandas(),df_68_ano.toPandas(), df_74_ano.toPandas(),df_79_ano.toPandas(), list_vin_Avenir)
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC Etude sur la charge de 70h (outlier Avenir)
-
-# COMMAND ----------
-
-plot(df_avenir_transfo.toPandas(), df_dase_transfo.toPandas(),df_68_ano.toPandas(), df_74_ano.toPandas(),df_79_ano.toPandas(), ["5c3d74294674c3060766e160b134d8ce"],"2022-01-05","2022-01-09")
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC Etude sur le véhicule manquant coté Dase
-
-# COMMAND ----------
-
-plot(df_avenir_transfo.toPandas(), df_dase_transfo.toPandas(),df_68_ano.toPandas(), df_74_ano.toPandas(),df_79_ano.toPandas(), ["97574ea267e2a878326c856b7dd92f79"])
-
-# COMMAND ----------
-
-
+plot(df_dase_transfo.toPandas(), df_74_ano.toPandas(),"VEHC_STTS_CHRG_STT", list_vin_Avenir)
 
 # COMMAND ----------
 

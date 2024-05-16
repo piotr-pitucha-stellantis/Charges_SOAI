@@ -50,7 +50,7 @@ print("Chemin du notebook :", notebook_path)
 
 # COMMAND ----------
 
-#liste_30_random = df_workbook['HEAD_VIN'].sample(n=30).tolist()
+liste_30_random = df_workbook['HEAD_VIN'].sample(n=30).tolist()
 
 # COMMAND ----------
 
@@ -115,28 +115,38 @@ dbutils.widgets.text("Data_path_S3", new_val)
 
 # COMMAND ----------
 
+# df_9_VIN = (spark.read
+#         .format("delta")
+#         .option("header",True)
+#         .options(delimiter=';')
+#         .load("s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/Studies/Avenir/parquet/9_Vin_Comparison")
+#         )
+# liste_9 = df_9_VIN.toPandas()['HEAD_VIN'].tolist()
+
+# COMMAND ----------
+
 #message_list = [54,74,77,79]
-# message_list = [68]
+message_list = [68]
 
 # COMMAND ----------
 
 for message in message_list:
     # one message_type only (54, 56, 57 ...)
     message_type = message
-    # start_date = "2022-01-01"
-    # end_date = "2022-02-01"
+    start_date = "2022-01-01"
+    end_date = "2022-02-01"
     # True for cleaned data, False for raw data
     preprocessing = True
     # Optionally a list of vin can be specified
-    list_vin = vin
+    list_vin = liste_9
     # carcom or carbide or None for both
     data_collect = 'carbide' 
-
     tcv_df = tcv.read(
         spark, message_type, start_date, end_date, preprocessing, list_vin, data_collect
     )
     print("TCV extracted for message ", message)
-    data_path_extraction = dbutils.widgets.get('Data_path_S3') + "data/Raw/"+folder_extraction+f"/Bloc_{message}"
+    # data_path_extraction = dbutils.widgets.get('Data_path_S3') + "data/Raw/"+folder_extraction+f"/Bloc_{message}"
+    data_path_extraction = "s3://cv-eu-west-1-001-dev-gadp-dafe/sd43982/chrg00/Studies/Avenir/parquet/68"
     tcv_df.write.mode('Overwrite').parquet(data_path_extraction)
     print("TCV wrote for message ", message)
 
